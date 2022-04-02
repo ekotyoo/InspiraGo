@@ -8,6 +8,7 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.view.marginEnd
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.ekotyoo.inspirago.R
 import com.ekotyoo.inspirago.databinding.FragmentHomeBinding
@@ -45,8 +46,8 @@ class HomeFragment : Fragment() {
         }
 
         popupBinding.tvMenuFavorite.setOnClickListener {
-            Toast.makeText(requireContext(), "You clicked favorite", Toast.LENGTH_SHORT).show()
             popupWindow.dismiss()
+            findNavController().navigate(R.id.action_homeFragment_to_savedFragment)
         }
 
         popupBinding.tvMenuSetting.setOnClickListener {

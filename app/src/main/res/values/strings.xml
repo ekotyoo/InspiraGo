@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">InspiraGo</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="refresh_button">Refresh Button</string>
     <string name="button_menu">Button Menu</string>
     <string name="dummy_quote">The way I see it, if you want the rainbow, you gotta put it up with the rain.</string>
