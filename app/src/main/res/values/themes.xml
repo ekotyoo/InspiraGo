@@ -6,6 +6,7 @@
         <item name="colorSecondary">@color/white</item>
         <item name="colorOnSecondary">@color/blue_main</item>
         <item name="android:statusBarColor" tools:targetApi="l">@color/blue_main</item>
-        <item name="android:background">@color/blue_main</item>
+        <item name="android:windowBackground">@color/blue_main</item>
+        <item name="popupMenuStyle">@style/InspiraGo.PopupMenu</item>
     </style>
 </resources>

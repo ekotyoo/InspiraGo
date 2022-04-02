@@ -4,4 +4,7 @@
     <string name="refresh_button">Refresh Button</string>
     <string name="button_menu">Button Menu</string>
     <string name="dummy_quote">The way I see it, if you want the rainbow, you gotta put it up with the rain.</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_favorites">Favorites</string>
+    <string name="settings">Settings</string>
 </resources>
