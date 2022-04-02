@@ -105,7 +105,6 @@
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:forceDarkAllowed="false"
         android:contentDescription="@string/refresh_button"
         android:foregroundTint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
