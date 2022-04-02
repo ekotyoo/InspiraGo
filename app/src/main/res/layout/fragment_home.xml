@@ -73,7 +73,8 @@
         app:layout_constraintStart_toStartOf="@+id/cv_quote"
         app:layout_constraintTop_toTopOf="@+id/cv_quote"
         app:layout_constraintVertical_bias="0.26"
-        tools:text="The way I see it, if you want the rainbow, you gotta put it up with the rain." />
+        tools:text="@string/dummy_quote"
+        android:text="@string/dummy_quote"/>
 
     <ImageButton
         android:id="@+id/btn_fav"
