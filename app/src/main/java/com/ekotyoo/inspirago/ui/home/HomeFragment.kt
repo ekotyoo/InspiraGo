@@ -59,7 +59,10 @@ class HomeFragment : Fragment() {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .into(binding.ivQuote)
-            binding.tvQuote.text = quote.content
+            binding.apply {
+                tvQuote.text = quote.content
+                tvAuthor.text = quote.author
+            }
             val motionLayout = binding.root
             setTransition(motionLayout, R.id.start, R.id.end)
         }
@@ -83,24 +86,31 @@ class HomeFragment : Fragment() {
 
     private fun setupShareIntent() {
         binding.btnShare.setOnClickListener {
-            val view = binding.root
+            val cardView = binding.cvQuote
 
-            val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+            val bitmap = Bitmap.createBitmap(cardView.width, cardView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
-            view.draw(canvas)
-
-            val croppedBitmap = Bitmap.createBitmap(bitmap, 80, 300, binding.cvQuote.width - 50, binding.cvQuote.height - 120)
+            cardView.draw(canvas)
+            canvas.save()
+            canvas.translate(40F, 60F)
+            binding.ivQuoteDecoration.draw(canvas)
+            canvas.translate(60F, 120F)
+            binding.tvQuote.draw(canvas)
+            canvas.translate(600F, 700F)
+            binding.tvAuthor.draw(canvas)
+            canvas.restore()
 
             val path = MediaStore.Images.Media.insertImage(
                 activity?.contentResolver,
-                croppedBitmap,
-                "Image Description",
-                null
+                bitmap,
+                "Tittle",
+                "Desc"
             )
             val uri: Uri = Uri.parse(path)
-            val intent = Intent(Intent.ACTION_SEND)
-            intent.type = "image/jpeg"
-            intent.putExtra(Intent.EXTRA_STREAM, uri)
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "image/jpeg"
+                putExtra(Intent.EXTRA_STREAM, uri)
+            }
             startActivity(Intent.createChooser(intent, "Share Image"))
         }
     }
