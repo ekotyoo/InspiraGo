@@ -12,7 +12,7 @@ class QuoteRemoteDataSource(
 }
 
 interface QuoteApi {
-    @GET("random")
+    @GET("random?maxLength=100")
     suspend fun getRandomQuote(): QuoteResponse
 }
 
@@ -23,6 +23,6 @@ class ApiConfig {
             .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-        fun getApiService() = retrofit.create(QuoteApi::class.java)
+        fun getApiService(): QuoteApi = retrofit.create(QuoteApi::class.java)
     }
 }
