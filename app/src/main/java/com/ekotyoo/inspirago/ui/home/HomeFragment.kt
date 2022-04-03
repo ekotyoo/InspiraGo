@@ -1,12 +1,16 @@
+@file:Suppress("DEPRECATION")
+
 package com.ekotyoo.inspirago.ui.home
 
+import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
+import android.graphics.Canvas
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.constraintlayout.motion.widget.MotionLayout
@@ -15,13 +19,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
-import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.target.BitmapImageViewTarget
-import com.bumptech.glide.request.target.CustomViewTarget
-import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
-import com.bumptech.glide.request.transition.Transition
 import com.ekotyoo.inspirago.R
 import com.ekotyoo.inspirago.databinding.FragmentHomeBinding
 import com.ekotyoo.inspirago.databinding.PopupWindowBinding
@@ -67,6 +65,7 @@ class HomeFragment : Fragment() {
         }
 
         setupPopupMenu()
+        setupShareIntent()
     }
 
     private fun setTransition(motionLayout: MotionLayout, startState: Int, endState: Int) {
@@ -80,6 +79,30 @@ class HomeFragment : Fragment() {
             }
         }
         viewModel.setIsFirstLaunch(false)
+    }
+
+    private fun setupShareIntent() {
+        binding.btnShare.setOnClickListener {
+            val view = binding.root
+
+            val bitmap = Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            view.draw(canvas)
+
+            val croppedBitmap = Bitmap.createBitmap(bitmap, 80, 300, binding.cvQuote.width - 50, binding.cvQuote.height - 120)
+
+            val path = MediaStore.Images.Media.insertImage(
+                activity?.contentResolver,
+                croppedBitmap,
+                "Image Description",
+                null
+            )
+            val uri: Uri = Uri.parse(path)
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "image/jpeg"
+            intent.putExtra(Intent.EXTRA_STREAM, uri)
+            startActivity(Intent.createChooser(intent, "Share Image"))
+        }
     }
 
     private fun setupPopupMenu() {
