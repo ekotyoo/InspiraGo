@@ -1,9 +1,12 @@
 package com.ekotyoo.inspirago.ui.home
 
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.constraintlayout.motion.widget.MotionLayout
@@ -11,12 +14,21 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.target.BitmapImageViewTarget
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.bumptech.glide.request.transition.Transition
 import com.ekotyoo.inspirago.R
 import com.ekotyoo.inspirago.databinding.FragmentHomeBinding
 import com.ekotyoo.inspirago.databinding.PopupWindowBinding
 
+
 private const val dummyImageUrl =
-    "https://images.unsplash.com/photo-1648780693516-3ff39ff65d1e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=735&q=80"
+    "https://picsum.photos/300/500"
 
 class HomeFragment : Fragment() {
 
@@ -37,15 +49,18 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Glide.with(binding.root)
-            .load(dummyImageUrl)
-            .into(binding.ivQuote)
-
         binding.floatingActionButton.setOnClickListener {
             viewModel.getRandomQuote()
         }
 
         viewModel.currentQuote.observe(viewLifecycleOwner) { quote ->
+            Glide.with(requireContext())
+                .load(dummyImageUrl)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .placeholder(binding.ivQuote.drawable)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .skipMemoryCache(true)
+                .into(binding.ivQuote)
             binding.tvQuote.text = quote.content
             val motionLayout = binding.root
             setTransition(motionLayout, R.id.start, R.id.end)
