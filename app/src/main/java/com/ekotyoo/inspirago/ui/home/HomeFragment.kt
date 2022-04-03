@@ -3,10 +3,8 @@
 package com.ekotyoo.inspirago.ui.home
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
+import android.graphics.*
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -15,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -93,16 +90,48 @@ class HomeFragment : Fragment() {
     private fun setupShareIntent() {
         binding.btnShare.setOnClickListener {
             val cardView = binding.cvQuote
+            val contrast = 1F
+            val brightness = -40F
+
+            val cm = ColorMatrix(
+                floatArrayOf(
+                    contrast,
+                    0f,
+                    0f,
+                    0f,
+                    brightness,
+                    0f,
+                    contrast,
+                    0f,
+                    0f,
+                    brightness,
+                    0f,
+                    0f,
+                    contrast,
+                    0f,
+                    brightness,
+                    0f,
+                    0f,
+                    0f,
+                    1f,
+                    0f
+                )
+            )
 
             val bitmap = Bitmap.createBitmap(cardView.width, cardView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             cardView.draw(canvas)
+
+            val paint = Paint()
+            paint.colorFilter = ColorMatrixColorFilter(cm)
+            canvas.drawBitmap(bitmap, 0F, 0F, paint)
+
             canvas.save()
             canvas.translate(40F, 60F)
             binding.ivQuoteDecoration.draw(canvas)
             canvas.translate(60F, 120F)
             binding.tvQuote.draw(canvas)
-            canvas.translate(600F, 700F)
+            canvas.translate(500F, 700F)
             binding.tvAuthor.draw(canvas)
             canvas.restore()
 
