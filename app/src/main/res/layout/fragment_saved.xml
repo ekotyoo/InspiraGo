@@ -1,15 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.saved.SavedFragment">
 
-    <TextView
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textColor="@color/white"
-        android:text="Saved Fragment" />
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/button_menu"
+        android:src="@drawable/ic_arrow_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/tv_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/menu_favorites"
+        android:textAppearance="@android:style/TextAppearance.Material.Title"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_back"
+        tools:text="@string/menu_favorites" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_quotes"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:orientation="vertical"
+        android:padding="12dp"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_back"
+        app:spanCount="2"
+        tools:itemCount="10"
+        tools:listitem="@layout/grid_item" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

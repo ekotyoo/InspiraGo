@@ -11,11 +11,11 @@
         android:id="@+id/btn_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="20dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/button_menu"
         android:src="@drawable/ic_more_vert"
-        app:layout_constraintBottom_toTopOf="@+id/cv_quote"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,14 +24,13 @@
         android:layout_width="0dp"
         android:layout_height="500dp"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="20dp"
         android:alpha="0.5"
         app:cardCornerRadius="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.3">
+        app:layout_constraintTop_toBottomOf="@+id/btn_menu">
 
         <ImageView
             android:id="@+id/iv_quote"
