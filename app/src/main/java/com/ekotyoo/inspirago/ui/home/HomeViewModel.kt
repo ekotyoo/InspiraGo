@@ -1,5 +1,6 @@
 package com.ekotyoo.inspirago.ui.home
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.ekotyoo.inspirago.data.entity.QuoteEntity
 import com.ekotyoo.inspirago.data.repositories.QuoteRepository
@@ -18,14 +19,22 @@ class HomeViewModel(
         _isFirstLaunch.value = state
     }
 
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String> = _errorMessage
+
     init {
         getRandomQuote()
     }
 
     fun getRandomQuote() {
         viewModelScope.launch {
-            val response = quoteRepository.getRandomQuote()
-            _currentQuote.value = response.toEntity()
+            try {
+                val response = quoteRepository.getRandomQuote()
+                _currentQuote.value = response.toEntity()
+            } catch (e: Exception) {
+                Log.d("HomeViewModel", "getRandomQuote: ${e.message}")
+                _errorMessage.value = e.message
+            }
         }
     }
 }
