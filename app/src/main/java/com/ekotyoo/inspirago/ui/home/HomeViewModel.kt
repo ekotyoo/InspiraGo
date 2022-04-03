@@ -6,6 +6,7 @@ import com.ekotyoo.inspirago.data.entity.QuoteEntity
 import com.ekotyoo.inspirago.data.repositories.QuoteRepository
 import com.ekotyoo.inspirago.di.Injection
 import kotlinx.coroutines.launch
+import retrofit2.awaitResponse
 
 class HomeViewModel(
     private val quoteRepository: QuoteRepository
@@ -30,10 +31,23 @@ class HomeViewModel(
         viewModelScope.launch {
             try {
                 val response = quoteRepository.getRandomQuote()
-                _currentQuote.value = response.toEntity()
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    if (responseBody != null) _currentQuote.value = responseBody.toEntity()
+                }  else {
+                    val message = when (response.code()) {
+                        400 -> "Bad Request"
+                        401 -> "Unauthorized"
+                        403 -> "Forbidden"
+                        404 -> "Not Found"
+                        408 -> "Request Timeout"
+                        else -> "Try Again Later"
+                    }
+                    _errorMessage.value = message
+                }
             } catch (e: Exception) {
                 Log.d("HomeViewModel", "getRandomQuote: ${e.message}")
-                _errorMessage.value = e.message
+                _errorMessage.value = "Something went wrong, try again later"
             }
         }
     }
