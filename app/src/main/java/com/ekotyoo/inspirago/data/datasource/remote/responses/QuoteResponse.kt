@@ -1,6 +1,6 @@
 package com.ekotyoo.inspirago.data
 
-import com.ekotyoo.inspirago.data.entity.QuoteEntity
+import com.ekotyoo.inspirago.data.entity.Quote
 import com.google.gson.annotations.SerializedName
 
 data class QuoteResponse(
@@ -29,5 +29,5 @@ data class QuoteResponse(
 	@SerializedName("tags")
 	val tags: List<String?>? = null
 ) {
-	fun toEntity() = QuoteEntity(author, content, "asd")
+	fun toEntity() = Quote(author, content, "asd")
 }

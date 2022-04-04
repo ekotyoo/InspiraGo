@@ -32,7 +32,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels {
-        HomeViewModelFactory.getInstance()
+        HomeViewModelFactory.getInstance(requireContext())
     }
 
     override fun onCreateView(
