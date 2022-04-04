@@ -7,8 +7,13 @@ class QuoteLocalDataSource(
     private val quoteDao: QuoteDao
 ) {
     val quotes: Flow<List<Quote>> = quoteDao.getAllQuote()
+    val quoteToDisplay: Flow<Quote> = quoteDao.getQuoteToDisplay()
 
     suspend fun saveQuote(quote: Quote) {
         quoteDao.saveQuote(quote)
+    }
+
+    suspend fun deleteQuote(quote: Quote) {
+        quoteDao.deleteQuote(quote.author, quote.content)
     }
 }

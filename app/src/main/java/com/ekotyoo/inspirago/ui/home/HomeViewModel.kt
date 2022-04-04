@@ -6,48 +6,51 @@ import androidx.lifecycle.*
 import com.ekotyoo.inspirago.data.entity.Quote
 import com.ekotyoo.inspirago.data.repositories.QuoteRepository
 import com.ekotyoo.inspirago.di.Injection
+import com.ekotyoo.inspirago.utils.QuoteError
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val quoteRepository: QuoteRepository
 ) : ViewModel() {
-    private val _currentQuote = MutableLiveData<Quote>()
-    val currentQuote: LiveData<Quote> = _currentQuote
 
-    private val _isFirstLaunch = MutableLiveData(true)
-    val isFirstLaunch: LiveData<Boolean> =_isFirstLaunch
-    fun setIsFirstLaunch(state: Boolean) {
-        _isFirstLaunch.value = state
-    }
+    val currentQuote: LiveData<Quote> = quoteRepository.quoteForDisplay.asLiveData()
+    val allQuote: LiveData<List<Quote>> = quoteRepository.savedQuotes.asLiveData()
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
 
     init {
-        getRandomQuote()
+        refreshQuote()
     }
 
-    fun getRandomQuote() {
+    fun refreshQuote() {
         viewModelScope.launch {
             try {
-                val response = quoteRepository.getRandomQuote()
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null) _currentQuote.value = responseBody.toEntity()
-                }  else {
-                    val message = when (response.code()) {
-                        400 -> "Bad Request"
-                        401 -> "Unauthorized"
-                        403 -> "Forbidden"
-                        404 -> "Not Found"
-                        408 -> "Request Timeout"
-                        else -> "Try Again Later"
-                    }
-                    _errorMessage.value = message
-                }
-            } catch (e: Exception) {
-                Log.d("HomeViewModel", "getRandomQuote: ${e.message}")
-                _errorMessage.value = "Something went wrong, try again later"
+                quoteRepository.refreshQuote()
+            } catch (error: QuoteError) {
+                Log.d("HomeViewModel", "getRandomQuote: ${error.message}")
+                _errorMessage.value = error.message
+            }
+        }
+    }
+
+    fun saveQuote() {
+        viewModelScope.launch {
+            try {
+                val quote = currentQuote.value
+                quoteRepository.saveQuote(quote!!.copy(id = null, isBookmarked = true))
+            } catch (error: Throwable) {
+                _errorMessage.value = error.message
+            }
+        }
+    }
+
+    fun deleteQuote(quote: Quote) {
+        viewModelScope.launch {
+            try {
+                quoteRepository.deleteQuote(quote)
+            } catch (error: Throwable) {
+                _errorMessage.value = error.message
             }
         }
     }

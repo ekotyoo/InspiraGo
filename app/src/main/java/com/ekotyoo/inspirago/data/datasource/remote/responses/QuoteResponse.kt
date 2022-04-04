@@ -28,6 +28,4 @@ data class QuoteResponse(
 
 	@SerializedName("tags")
 	val tags: List<String?>? = null
-) {
-	fun toEntity() = Quote(author, content, "asd")
-}
+)

@@ -47,8 +47,30 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.floatingActionButton.setOnClickListener {
-            viewModel.getRandomQuote()
+            viewModel.refreshQuote()
         }
+
+        viewModel.allQuote.observe(viewLifecycleOwner) { quotes ->
+            val currentQuote = viewModel.currentQuote.value
+            val isQuoteExist = quotes.any {
+                currentQuote?.author == it.author && currentQuote.content == it.content && it.isBookmarked
+            }
+
+
+            binding.btnFav.apply {
+                setImageResource(if (isQuoteExist) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
+                setOnClickListener {
+                    if (!isQuoteExist) {
+                        viewModel.saveQuote()
+                    } else {
+                        viewModel.deleteQuote(currentQuote!!)
+                    }
+                }
+            }
+
+        }
+
+
 
         viewModel.currentQuote.observe(viewLifecycleOwner) { quote ->
             Glide.with(requireContext())
@@ -59,11 +81,10 @@ class HomeFragment : Fragment() {
                 .skipMemoryCache(true)
                 .into(binding.ivQuote)
             binding.apply {
-                tvQuote.text = quote.content
-                tvAuthor.text = quote.author
+                tvQuote.text = quote?.content
+                tvAuthor.text = quote?.author
+                setTransition(root, R.id.start, R.id.end)
             }
-            val motionLayout = binding.root
-            setTransition(motionLayout, R.id.start, R.id.end)
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
@@ -75,16 +96,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun setTransition(motionLayout: MotionLayout, startState: Int, endState: Int) {
-        motionLayout.setTransition(startState, endState)
+        motionLayout.setTransition(endState, startState)
         motionLayout.setTransitionDuration(1000)
         motionLayout.transitionToEnd {
-            viewModel.isFirstLaunch.observe(viewLifecycleOwner) { isFirstLaunch ->
-                if (isFirstLaunch) {
-                    motionLayout.transitionToStart()
-                }
-            }
+            motionLayout.transitionToStart()
         }
-        viewModel.setIsFirstLaunch(false)
     }
 
     private fun setupShareIntent() {
@@ -118,7 +134,8 @@ class HomeFragment : Fragment() {
                 )
             )
 
-            val bitmap = Bitmap.createBitmap(cardView.width, cardView.height, Bitmap.Config.ARGB_8888)
+            val bitmap =
+                Bitmap.createBitmap(cardView.width, cardView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             cardView.draw(canvas)
 

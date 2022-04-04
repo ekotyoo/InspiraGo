@@ -18,7 +18,7 @@ abstract class QuoteDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     QuoteDatabase::class.java,
-                    "quote.db"
+                    "quote_db"
                 ).build()
                 INSTANCE = instance
                 instance
@@ -32,9 +32,12 @@ interface QuoteDao {
     @Query("SELECT * FROM quote")
     fun getAllQuote(): Flow<List<Quote>>
 
-    @Insert
+    @Query("SELECT * FROM quote WHERE is_bookmarked = 0 LIMIT 1")
+    fun getQuoteToDisplay(): Flow<Quote>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveQuote(quote: Quote)
 
-    @Query("DELETE FROM quote")
-    suspend fun deleteAllQuote()
+    @Query("DELETE FROM quote WHERE is_bookmarked == 1 AND author = :author AND content = :content")
+    suspend fun deleteQuote(author: String, content: String)
 }
