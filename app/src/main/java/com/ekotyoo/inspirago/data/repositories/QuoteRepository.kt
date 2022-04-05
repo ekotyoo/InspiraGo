@@ -11,7 +11,7 @@ class QuoteRepository(
     private val quoteLocalDataSource: QuoteLocalDataSource
 ) {
     val savedQuotes: Flow<List<Quote>> = quoteLocalDataSource.quotes
-    val quoteForDisplay: Flow<Quote> = quoteLocalDataSource.quoteToDisplay
+    val quoteForDisplay: Flow<Quote?> = quoteLocalDataSource.quoteToDisplay
 
     suspend fun refreshQuote() {
         try {

@@ -13,23 +13,35 @@ class HomeViewModel(
     private val quoteRepository: QuoteRepository
 ) : ViewModel() {
 
-    val currentQuote: LiveData<Quote> = quoteRepository.quoteForDisplay.asLiveData()
+    val currentQuote: MediatorLiveData<Quote> = MediatorLiveData<Quote>()
     val allQuote: LiveData<List<Quote>> = quoteRepository.savedQuotes.asLiveData()
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> = _errorMessage
 
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
     init {
-        refreshQuote()
+        currentQuote.addSource(quoteRepository.quoteForDisplay.asLiveData()) {
+            if (it == null) {
+                refreshQuote()
+            } else {
+                currentQuote.value = it
+            }
+        }
     }
 
     fun refreshQuote() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
                 quoteRepository.refreshQuote()
             } catch (error: QuoteError) {
                 Log.d("HomeViewModel", "getRandomQuote: ${error.message}")
                 _errorMessage.value = error.message
+            } finally {
+                _isLoading.value = false
             }
         }
     }

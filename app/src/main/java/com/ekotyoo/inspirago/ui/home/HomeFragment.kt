@@ -3,7 +3,8 @@
 package com.ekotyoo.inspirago.ui.home
 
 import android.content.Intent
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -12,7 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.Toast
-import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -22,10 +23,6 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.ekotyoo.inspirago.R
 import com.ekotyoo.inspirago.databinding.FragmentHomeBinding
 import com.ekotyoo.inspirago.databinding.PopupWindowBinding
-
-
-private const val dummyImageUrl =
-    "https://picsum.photos/300/500"
 
 class HomeFragment : Fragment() {
 
@@ -46,7 +43,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.floatingActionButton.setOnClickListener {
+        binding.btnRefresh.setOnClickListener {
             viewModel.refreshQuote()
         }
 
@@ -55,7 +52,6 @@ class HomeFragment : Fragment() {
             val isQuoteExist = quotes.any {
                 currentQuote?.author == it.author && currentQuote.content == it.content && it.isBookmarked
             }
-
 
             binding.btnFav.apply {
                 setImageResource(if (isQuoteExist) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
@@ -67,23 +63,19 @@ class HomeFragment : Fragment() {
                     }
                 }
             }
-
         }
-
-
 
         viewModel.currentQuote.observe(viewLifecycleOwner) { quote ->
             Glide.with(requireContext())
-                .load(dummyImageUrl)
+                .load(quote.bgImageUrl)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .placeholder(binding.ivQuote.drawable)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .into(binding.ivQuote)
             binding.apply {
-                tvQuote.text = quote?.content
-                tvAuthor.text = quote?.author
-                setTransition(root, R.id.start, R.id.end)
+                tvQuote.text = quote?.content ?: "Empty"
+                tvAuthor.text = quote?.author ?: "Empty"
             }
         }
 
@@ -91,73 +83,33 @@ class HomeFragment : Fragment() {
             Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
         }
 
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.apply {
+                progressBar.isGone = !isLoading
+                groupedCardContent.visibility = if (isLoading) View.INVISIBLE else View.VISIBLE
+            }
+        }
+
         setupPopupMenu()
         setupShareIntent()
-    }
-
-    private fun setTransition(motionLayout: MotionLayout, startState: Int, endState: Int) {
-        motionLayout.setTransition(endState, startState)
-        motionLayout.setTransitionDuration(1000)
-        motionLayout.transitionToEnd {
-            motionLayout.transitionToStart()
-        }
     }
 
     private fun setupShareIntent() {
         binding.btnShare.setOnClickListener {
             val cardView = binding.cvQuote
-            val contrast = 1F
-            val brightness = -40F
-
-            val cm = ColorMatrix(
-                floatArrayOf(
-                    contrast,
-                    0f,
-                    0f,
-                    0f,
-                    brightness,
-                    0f,
-                    contrast,
-                    0f,
-                    0f,
-                    brightness,
-                    0f,
-                    0f,
-                    contrast,
-                    0f,
-                    brightness,
-                    0f,
-                    0f,
-                    0f,
-                    1f,
-                    0f
-                )
-            )
 
             val bitmap =
                 Bitmap.createBitmap(cardView.width, cardView.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             cardView.draw(canvas)
 
-            val paint = Paint()
-            paint.colorFilter = ColorMatrixColorFilter(cm)
-            canvas.drawBitmap(bitmap, 0F, 0F, paint)
-
-            canvas.save()
-            canvas.translate(40F, 60F)
-            binding.ivQuoteDecoration.draw(canvas)
-            canvas.translate(60F, 120F)
-            binding.tvQuote.draw(canvas)
-            canvas.translate(500F, 700F)
-            binding.tvAuthor.draw(canvas)
-            canvas.restore()
-
             val path = MediaStore.Images.Media.insertImage(
                 activity?.contentResolver,
                 bitmap,
-                "Tittle",
-                "Desc"
+                "${System.currentTimeMillis()}",
+                "Quote to share"
             )
+
             val uri: Uri = Uri.parse(path)
             val intent = Intent(Intent.ACTION_SEND).apply {
                 type = "image/jpeg"
