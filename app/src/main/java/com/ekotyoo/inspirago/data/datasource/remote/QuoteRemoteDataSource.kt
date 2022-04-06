@@ -11,6 +11,11 @@ import java.util.concurrent.TimeUnit
 class QuoteRemoteDataSource(
     private val quoteApi: QuoteApi,
 ) {
+    /**
+     * Get random quote from API
+     *
+     * @return [Response<QuoteResponse>]
+     */
     suspend fun getRandomQuote() = quoteApi.getRandomQuote()
 }
 

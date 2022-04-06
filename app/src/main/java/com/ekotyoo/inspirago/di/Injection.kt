@@ -8,6 +8,12 @@ import com.ekotyoo.inspirago.data.datasource.remote.QuoteRemoteDataSource
 import com.ekotyoo.inspirago.data.repositories.QuoteRepository
 
 object Injection {
+
+    /**
+     * Inject [QuoteRepository]
+     *
+     * @param context needed for getting [QuoteDatabase] instance
+     */
     fun provideRepository(context: Context): QuoteRepository {
         val quoteApi = ApiConfig.getApiService()
         val quoteDatabase = QuoteDatabase.getDatabase(context)

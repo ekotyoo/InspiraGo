@@ -28,6 +28,7 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
     private val viewModel: HomeViewModel by viewModels {
         HomeViewModelFactory.getInstance(requireContext())
     }
@@ -47,24 +48,15 @@ class HomeFragment : Fragment() {
             viewModel.refreshQuote()
         }
 
-        viewModel.allQuote.observe(viewLifecycleOwner) { quotes ->
-            val currentQuote = viewModel.currentQuote.value
-            val isQuoteExist = quotes.any {
-                currentQuote?.author == it.author && currentQuote.content == it.content && it.isBookmarked
-            }
+        setupViewModelObserver()
+        setupPopupMenu()
+        setupShareIntent()
+    }
 
-            binding.btnFav.apply {
-                setImageResource(if (isQuoteExist) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
-                setOnClickListener {
-                    if (!isQuoteExist) {
-                        viewModel.saveQuote()
-                    } else {
-                        viewModel.deleteQuote(currentQuote!!)
-                    }
-                }
-            }
-        }
-
+    /**
+     * Observe HomeViewModel property needed for this screen
+     */
+    private fun setupViewModelObserver() {
         viewModel.currentQuote.observe(viewLifecycleOwner) { quote ->
             Glide.with(requireContext())
                 .load(quote.bgImageUrl)
@@ -73,14 +65,11 @@ class HomeFragment : Fragment() {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(true)
                 .into(binding.ivQuote)
-            binding.apply {
-                tvQuote.text = quote?.content ?: "Empty"
-                tvAuthor.text = quote?.author ?: "Empty"
-            }
-        }
 
-        viewModel.errorMessage.observe(viewLifecycleOwner) { error ->
-            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+            binding.apply {
+                tvQuote.text = quote.content
+                tvAuthor.text = quote.author
+            }
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -90,10 +79,45 @@ class HomeFragment : Fragment() {
             }
         }
 
-        setupPopupMenu()
-        setupShareIntent()
+        viewModel.errorMessage.observe(viewLifecycleOwner) { error -> showToast(error) }
+
+        viewModel.allQuote.observe(viewLifecycleOwner) { quotes ->
+            val currentQuote = viewModel.currentQuote.value
+
+            // Check if current displayed quote exist in room database or not
+            val isQuoteExist = quotes.any {
+                currentQuote?.author == it.author && currentQuote.content == it.content && it.isBookmarked
+            }
+
+            binding.btnFav.apply {
+                // Set image resource and button functionality based on isQuoteExist
+                setImageResource(if (isQuoteExist) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
+                setOnClickListener {
+                    if (!isQuoteExist) {
+                        viewModel.saveQuote()
+                        showToast("Saved to favorite!")
+                    } else {
+                        viewModel.deleteQuote(currentQuote!!)
+                        showToast("Deleted from favorite!")
+                    }
+                }
+            }
+        }
     }
 
+    /**
+     * Show toast on screen
+     *
+     * @param message to show on toast
+     */
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Convert quote CardView to Bitmap, and share the result
+     * via implicit intent
+     */
     private fun setupShareIntent() {
         binding.btnShare.setOnClickListener {
             val cardView = binding.cvQuote
@@ -119,6 +143,9 @@ class HomeFragment : Fragment() {
         }
     }
 
+    /**
+     * Setup popup menu dialog to navigate to SavedFragment and SettingFragment
+     */
     private fun setupPopupMenu() {
         val popupBinding = PopupWindowBinding.inflate(layoutInflater)
         val popupWindow = PopupWindow(
@@ -136,7 +163,7 @@ class HomeFragment : Fragment() {
         }
 
         popupBinding.tvMenuSetting.setOnClickListener {
-            Toast.makeText(requireContext(), "You clicked setting", Toast.LENGTH_SHORT).show()
+            showToast("You clicked setting!")
             popupWindow.dismiss()
         }
 

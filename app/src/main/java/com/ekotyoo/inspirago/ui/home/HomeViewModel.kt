@@ -22,6 +22,9 @@ class HomeViewModel(
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
+    /**
+     * Initialize current quote to be displayed
+     */
     init {
         currentQuote.addSource(quoteRepository.quoteForDisplay.asLiveData()) {
             if (it == null) {
@@ -32,6 +35,9 @@ class HomeViewModel(
         }
     }
 
+    /**
+     * Refresh current quote with new quote from network
+     */
     fun refreshQuote() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -46,6 +52,9 @@ class HomeViewModel(
         }
     }
 
+    /**
+     * Save current quote [currentQuote] to room database
+     */
     fun saveQuote() {
         viewModelScope.launch {
             try {
@@ -57,6 +66,11 @@ class HomeViewModel(
         }
     }
 
+    /**
+     * Delete single quote from room database
+     *
+     * @param quote to be deleted
+     */
     fun deleteQuote(quote: Quote) {
         viewModelScope.launch {
             try {
@@ -68,6 +82,9 @@ class HomeViewModel(
     }
 }
 
+/**
+ * ViewModelFactory for HomeViewModel
+ */
 class HomeViewModelFactory private constructor(private val quoteRepository: QuoteRepository) :
     ViewModelProvider.NewInstanceFactory() {
     @Suppress("UNCHECKED_CAST")
